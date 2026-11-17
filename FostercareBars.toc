@@ -1,0 +1,14 @@
+## Interface: 11200
+## Title: |cffff9e38FostercareBars|r |cffffd6a8[Fostercare5988]|r
+## Notes: Your action bars, up to ten extra bars, and profiles of their buttons
+## Author: Fostercare5988
+## Version: 1.0.0
+## SavedVariablesPerCharacter: FostercareBarsDB
+## LoadSavedVariablesFirst: 1
+Profiles.lua
+Buttons.lua
+Slots.lua
+Free.lua
+Bars.lua
+Look.lua
+Page.lua
