@@ -16,7 +16,7 @@ on them.
 - **Each button:** cooldown countdown, range and mana colours, reagent counts,
   equipped border, auto-attack flash, macro names, key text, tooltips.
 - **Profiles:** save what is on every bar under a name and load it again, also
-  from BrainwasherPro when a talent spec changes. An item not in your bags yet is
+  from Brainwasher when a talent spec changes. An item not in your bags yet is
   placed when it arrives.
 - **Layout:** per bar shown, size, buttons per row, spacing and empty buttons;
   Move bars drags them. Hide the gryphons, the bar art, the bag and menu buttons

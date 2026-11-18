@@ -208,5 +208,5 @@ function FB.Load(name)
     return true
 end
 
--- For other addons (BrainwasherPro).
+-- For other addons (Brainwasher).
 ActionBars = { GetProfileNames = FB.Names, LoadProfile = FB.Load }
