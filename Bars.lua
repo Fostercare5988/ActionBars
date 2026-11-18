@@ -163,25 +163,16 @@ function FB.Move()
     FB.Print(moving and "Drag the bars. Press Move bars again to lock them." or "Bars locked.")
 end
 
--- Keys: those of the stock buttons press ours (an override for each, ### Override
--- bindings); the other bars' keys are in Key Bindings (Bindings.xml).
-local owner = CreateFrame("Frame")
-
+-- Keys: those of the stock buttons press the stock buttons, on our slots
+-- (Slots.lua); the other bars' keys are in Key Bindings (Bindings.xml).
 local function Command(bar, i)
     return bar.binding and bar.binding .. i or "ACTIONBARS_" .. string.upper(bar.key) .. "_" .. i
 end
 
+-- The key text on each button.
 function FB.Keys()
-    ClearOverrideBindings(owner)
     for _, bar in ipairs(FB.bars) do
-        for i, b in ipairs(bar.buttons or {}) do
-            local key1, key2 = GetBindingKey(Command(bar, i))
-            if bar.binding then
-                if key1 then SetOverrideBindingClick(owner, false, key1, b:GetName()) end
-                if key2 then SetOverrideBindingClick(owner, false, key2, b:GetName()) end
-            end
-            FB.SetKey(b, key1)
-        end
+        for i, b in ipairs(bar.buttons or {}) do FB.SetKey(b, (GetBindingKey(Command(bar, i)))) end
     end
 end
 
@@ -192,13 +183,15 @@ for _, bar in ipairs(FB.bars) do
     end
 end
 
--- The bindings in Bindings.xml: down shows the button pushed, up clicks it.
+-- The bindings in Bindings.xml: down shows the button pushed, up uses it. Not a
+-- click: a key bound in Lua sees Shift held (### Modifier keys during a binding),
+-- and a Shift-click picks the action up.
 function ActionBars.Press(key, i, state)
     local bar = FB.byKey[key]
     local b = bar and bar.buttons and bar.buttons[i]
     if not b or not bar.holder:IsShown() then return end
     if state == "down" then b:SetButtonState("PUSHED")
-    else b:SetButtonState("NORMAL"); b:Click() end
+    else b:SetButtonState("NORMAL"); b:Use() end
 end
 
 local events = CreateFrame("Frame")

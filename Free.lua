@@ -178,6 +178,7 @@ end
 
 local function Use(b)
     local a = b.action
+    if not a then return end
     if a.kind == "spell" then
         local name, rank = GetSpellInfo(a.id)
         if name then CastSpellByName(rank and rank ~= "" and name .. "(" .. rank .. ")" or name) end
@@ -202,10 +203,10 @@ local function Take(b)
     if old then FB.Pickup(old) end
 end
 
+-- Off the button only onto the cursor: an item with none left stays
+-- (Shift-right-click clears it).
 local function DragOff(b)
-    local old = b.action
-    Set(b, nil)
-    FB.Pickup(old)
+    if FB.Pickup(b.action) then Set(b, nil) end
 end
 
 local function OnClick()
@@ -261,7 +262,7 @@ events:SetScript("OnEvent", function()
     elseif event == "ACTIONBAR_SLOT_CHANGED" then -- a spell may have come onto a slot, or left it
         Each(Follow)
         Range()
-    elseif event == "UNIT_INVENTORY_CHANGED" then
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         Each(Equipped)
     elseif event == "SPELL_UPDATE_COOLDOWN" or event == "BAG_UPDATE_COOLDOWN" then
         Each(Cooldown)
@@ -281,7 +282,7 @@ end)
 
 function FB.FreeButton(bar, i)
     local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
-    b.bar, b.index, b.Draw, b.Tooltip = bar, i, Draw, Tooltip
+    b.bar, b.index, b.Draw, b.Tooltip, b.Use = bar, i, Draw, Tooltip, Use
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)
     b:SetScript("OnReceiveDrag", OnReceiveDrag)
@@ -289,11 +290,11 @@ function FB.FreeButton(bar, i)
     if #free == 0 then
         for _, name in ipairs({ "SPELL_UPDATE_COOLDOWN", "BAG_UPDATE_COOLDOWN", "BAG_UPDATE_DELAYED",
             "PLAYER_TARGET_CHANGED", "SPELLS_CHANGED", "UPDATE_MACROS", "EQUIPMENT_SETS_CHANGED",
-            "ACTION_RANGE_CHECK_UPDATE", "PLAYER_SWING_RANGE_UPDATE", "ACTIONBAR_SLOT_CHANGED" }) do
+            "ACTION_RANGE_CHECK_UPDATE", "PLAYER_SWING_RANGE_UPDATE", "ACTIONBAR_SLOT_CHANGED",
+            "PLAYER_EQUIPMENT_CHANGED" }) do
             events:RegisterEvent(name)
         end
         events:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
-        events:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
     end
     free[#free + 1] = b
     local row = db.free[bar.free]

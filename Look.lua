@@ -64,34 +64,33 @@ function FB.Look()
     for _, b in ipairs(FB.buttons) do FB.Style(b) end
 end
 
--- Countdown numbers on the stock sweeps of the pet and stance buttons, which are
+-- Countdown numbers on every stock sweep: the pet and stance buttons, bags, the
+-- spellbook, the character sheet, and other addons' (Bagnon, GearRack). They are
 -- 1.12 Models without numbers: each gets a native Cooldown that draws only the
--- numbers (FrameXML Cooldown.lua: CooldownFrame_SetTimer shows the Model for a
--- running cooldown and hides it otherwise; the numbers hide with it).
+-- numbers, by the player's countdownForCooldowns (the Cooldown section). FrameXML
+-- Cooldown.lua: CooldownFrame_SetTimer shows the Model for a running cooldown
+-- and hides it otherwise; the numbers hide with it.
 local function Numbers(model)
-    if model.fbNumbers == nil then
-        model.fbNumbers = false -- a native Cooldown counts down by itself
-        if model:GetObjectType() ~= "Cooldown" then
-            local numbers = CreateFrame("Cooldown", nil, model)
-            numbers:SetAllPoints(model)
-            numbers:SetDrawSwipe(false)
-            numbers:SetDrawBling(false)
-            numbers:SetCountdownFormatter(FB.Countdown)
-            model.fbNumbers = numbers
-        end
-    end
-    return model.fbNumbers
+    if model:GetObjectType() == "Cooldown" then return false end -- counts down by itself
+    local numbers = CreateFrame("Cooldown", nil, model)
+    numbers:SetAllPoints(model)
+    numbers:SetDrawSwipe(false)
+    numbers:SetDrawBling(false)
+    numbers:SetCountdownFormatter(FB.Countdown)
+    return numbers
 end
 
+-- Made at a sweep's first running cooldown: a bag clears every slot when it opens.
 hooksecurefunc("CooldownFrame_SetTimer", function(model, start, duration, enable)
-    local numbers = model and Numbers(model)
-    if not numbers then return end
+    if not model then return end
+    local numbers = model.fbNumbers
     if start > 0 and duration > 0 and enable > 0 then
-        if numbers.start ~= start or numbers.duration ~= duration then
+        if numbers == nil then numbers = Numbers(model); model.fbNumbers = numbers end
+        if numbers and (numbers.start ~= start or numbers.duration ~= duration) then
             numbers.start, numbers.duration = start, duration
             numbers:SetCooldown(start, duration)
         end
-    elseif numbers.start then
+    elseif numbers and numbers.start then
         numbers.start, numbers.duration = nil, nil
         numbers:Clear()
     end

@@ -15,6 +15,12 @@ on them.
   keys in Key Bindings.
 - **Each button:** cooldown countdown, range and mana colours, reagent counts,
   equipped border, auto-attack flash, macro names, key text, tooltips.
+- **Keys** work as on the stock bars: holding Shift or something on the cursor
+  never moves a button.
+- **Countdown numbers on every other cooldown in the game too:** pet and
+  stance bars, bags, spellbook, character sheet, and addons that use the
+  game's own cooldown sweep. They follow the game's `countdownForCooldowns`
+  setting.
 - **Profiles:** save what is on every bar under a name and load it again, also
   from Brainwasher when a talent spec changes. An item not in your bags yet is
   placed when it arrives.

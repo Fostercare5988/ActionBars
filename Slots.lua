@@ -67,8 +67,7 @@ local function SetSlot(b, slot)
     end
     b.slot = slot
     -- The stock button of the same key uses this slot too: the game's own binding
-    -- presses it (MultiActionButtonUp, ActionButtonUp: UseAction(button.action))
-    -- whenever our override is not in place, as at a first login (2026-11-17).
+    -- presses it (the hooks below).
     for _, twin in ipairs(b.twins or {}) do twin.action = slot end
     bySlot[slot] = bySlot[slot] or {}
     bySlot[slot][b] = true
@@ -105,13 +104,36 @@ local function OnReceiveDrag()
     if LOCK_ACTIONBAR ~= "1" then PlaceAction(this.slot); State(this) end
 end
 
+-- A key from Key Bindings (ActionBars.Press), as the stock ActionButtonUp.
+local function Use(b)
+    if MacroFrame_SaveMacro then MacroFrame_SaveMacro() end
+    UseAction(b.slot, 0)
+    State(b)
+end
+
 -- The stock buttons of each stock bar (FrameXML ActionBarFrame.xml, MultiActionBars.xml).
 local STOCK = { main = "Action", bottomleft = "MultiBarBottomLeft", bottomright = "MultiBarBottomRight",
     right = "MultiBarRight", left = "MultiBarLeft" }
 
+-- Their keys: the game's own bindings press the stock buttons, which use our
+-- slot (ActionButtonUp, MultiActionButtonUp: UseAction(button.action, 0)), so a
+-- key acts as on the stock bars. A click of ours would pick the action up when
+-- Shift is held, and Shift+6 runs the binding of 6 with Shift held (### Keys
+-- with modifiers). Our button shows the press.
+local BAR = {}
+for key, stock in pairs(STOCK) do BAR[stock] = key end
+local function Pushed(stock, i, state)
+    local buttons = FB.byKey[BAR[stock]].buttons
+    if buttons then buttons[i]:SetButtonState(state) end
+end
+hooksecurefunc("ActionButtonDown", function(i) Pushed("Action", i, "PUSHED") end)
+hooksecurefunc("ActionButtonUp", function(i) Pushed("Action", i, "NORMAL") end)
+hooksecurefunc("MultiActionButtonDown", function(bar, i) Pushed(bar, i, "PUSHED") end)
+hooksecurefunc("MultiActionButtonUp", function(bar, i) Pushed(bar, i, "NORMAL") end)
+
 function FB.SlotButton(bar, i)
     local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
-    b.bar, b.Draw, b.Tooltip = bar, Draw, Tooltip
+    b.bar, b.Draw, b.Tooltip, b.Use = bar, Draw, Tooltip, Use
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)
     b:SetScript("OnReceiveDrag", OnReceiveDrag)
@@ -151,8 +173,10 @@ events:SetScript("OnEvent", function()
         Each(Cooldown)
     elseif event == "BAG_UPDATE_DELAYED" then
         Each(Count)
-    elseif event == "UNIT_INVENTORY_CHANGED" then
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         Each(Border)
+    elseif event == "UNIT_INVENTORY_CHANGED" then -- a thrown stack or charges (ActionButton.lua:325)
+        Each(Count)
     elseif event == "UPDATE_BONUS_ACTIONBAR" or event == "ACTIONBAR_PAGE_CHANGED" then
         local main = FB.byKey.main.buttons
         if main then for i, b in ipairs(main) do SetSlot(b, MainSlot(i)) end end
@@ -168,7 +192,7 @@ for _, name in ipairs({ "ACTIONBAR_SLOT_CHANGED", "ACTION_USABLE_CHANGED", "ACTI
     "ACTIONBAR_UPDATE_COOLDOWN", "ACTIONBAR_UPDATE_STATE", "BAG_UPDATE_DELAYED", "UPDATE_BONUS_ACTIONBAR",
     "ACTIONBAR_PAGE_CHANGED", "UPDATE_MACROS", "PLAYER_ENTER_COMBAT", "PLAYER_LEAVE_COMBAT",
     "START_AUTOREPEAT_SPELL", "STOP_AUTOREPEAT_SPELL", "TRADE_SKILL_SHOW", "TRADE_SKILL_CLOSE",
-    "CRAFT_SHOW", "CRAFT_CLOSE" }) do
+    "CRAFT_SHOW", "CRAFT_CLOSE", "PLAYER_EQUIPMENT_CHANGED" }) do
     events:RegisterEvent(name)
 end
 events:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
