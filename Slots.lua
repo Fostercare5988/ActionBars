@@ -1,11 +1,11 @@
--- FostercareBars: the buttons on action slots 1-120. One event frame tells
+-- ActionBars: the buttons on action slots 1-120. One event frame tells
 -- each slot only what changed: ACTIONBAR_SLOT_CHANGED for one slot,
 -- ACTION_USABLE_CHANGED and ACTION_RANGE_CHECK_UPDATE for the slots named
 -- (### C_ActionBar.EnableActionRangeCheck). No button has an OnUpdate.
 local _, FB = ...
 if not FB.Load then return end
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 local buttons, bySlot = {}, {} -- every slot button; slot -> { [button] = true }
 local NONE = {} -- a slot no button shows
 local attacking -- between PLAYER_ENTER_COMBAT and PLAYER_LEAVE_COMBAT (auto-attack)
@@ -110,7 +110,7 @@ local STOCK = { main = "Action", bottomleft = "MultiBarBottomLeft", bottomright 
     right = "MultiBarRight", left = "MultiBarLeft" }
 
 function FB.SlotButton(bar, i)
-    local b = FB.NewButton("FostercareBars_" .. bar.key .. "_" .. i, bar.holder)
+    local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
     b.bar, b.Draw, b.Tooltip = bar, Draw, Tooltip
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)

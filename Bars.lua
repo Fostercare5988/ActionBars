@@ -1,10 +1,10 @@
--- FostercareBars: the bars. The six stock bars' slots, then up to ten extra
+-- ActionBars: the bars. The six stock bars' slots, then up to ten extra
 -- bars: first on the slot pages the class never pages to, then free bars past
 -- slot 120 (Free.lua). Layout, Move bars and the keys.
 local _, FB = ...
 if not FB.Load then return end
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 FB.MAX_EXTRA = 10
 
 -- How many bonus offsets the class pages the main bar to (ActionButton.lua:441-448).
@@ -47,7 +47,7 @@ for _, bar in ipairs(FB.bars) do
         if bar.cfg[field] == nil then bar.cfg[field] = FB.LayoutDefault(bar, field) end
     end
     -- Named, so the client saves where it is dragged (### frame:SetDontSavePosition).
-    bar.holder = CreateFrame("Frame", "FostercareBars_" .. bar.key, UIParent)
+    bar.holder = CreateFrame("Frame", "ActionBars_" .. bar.key, UIParent)
     bar.holder:SetMovable(true)
     bar.holder:SetClampedToScreen(true)
 end
@@ -168,7 +168,7 @@ end
 local owner = CreateFrame("Frame")
 
 local function Command(bar, i)
-    return bar.binding and bar.binding .. i or "FOSTERCAREBARS_" .. string.upper(bar.key) .. "_" .. i
+    return bar.binding and bar.binding .. i or "ACTIONBARS_" .. string.upper(bar.key) .. "_" .. i
 end
 
 function FB.Keys()
@@ -185,7 +185,7 @@ function FB.Keys()
     end
 end
 
-BINDING_HEADER_FOSTERCAREBARS = "FostercareBars"
+BINDING_HEADER_ACTIONBARS = "ActionBars"
 for _, bar in ipairs(FB.bars) do
     if not bar.binding then
         for i = 1, 12 do _G["BINDING_NAME_" .. Command(bar, i)] = bar.name .. " Button " .. i end
@@ -193,7 +193,7 @@ for _, bar in ipairs(FB.bars) do
 end
 
 -- The bindings in Bindings.xml: down shows the button pushed, up clicks it.
-function FostercareBars.Press(key, i, state)
+function ActionBars.Press(key, i, state)
     local bar = FB.byKey[key]
     local b = bar and bar.buttons and bar.buttons[i]
     if not b or not bar.holder:IsShown() then return end

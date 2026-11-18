@@ -1,4 +1,4 @@
--- FostercareBars: the free bars, past the client's 120 action slots. Each
+-- ActionBars: the free bars, past the client's 120 action slots. Each
 -- button holds a saved action, the same record as a profile's slot (spell by
 -- ID, item by ID, macro by name and text, equipment set by name), taken from
 -- the cursor (### GetCursorInfo()). Cooldown, usable state and counts come by
@@ -6,7 +6,7 @@
 local _, FB = ...
 if not FB.Load then return end
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 local free = {} -- every free button
 local events = CreateFrame("Frame")
 local ticker -- the range check, while it is needed
@@ -280,7 +280,7 @@ events:SetScript("OnEvent", function()
 end)
 
 function FB.FreeButton(bar, i)
-    local b = FB.NewButton("FostercareBars_" .. bar.key .. "_" .. i, bar.holder)
+    local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
     b.bar, b.index, b.Draw, b.Tooltip = bar, i, Draw, Tooltip
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)

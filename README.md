@@ -1,4 +1,4 @@
-# FostercareBars
+# ActionBars
 
 Modern action bars for World of Warcraft 1.12.1, with named profiles of what is
 on them.
@@ -26,13 +26,13 @@ Everything is on its page in AddOn Options; `/fbars` opens it.
 
 ## Requirements
 
-WoW 1.12.1 (build 5875) with **ClassicAPI** loaded.
+WoW 1.12.1 (build 5875) with **[ClassicAPI](https://github.com/brues-code/ClassicAPI)** loaded.
 
 ## Installation
 
-Download `FostercareBars.zip` from the
-[latest release](https://github.com/Fostercare5988/FostercareBars/releases/latest),
+Download `ActionBars.zip` from the
+[latest release](https://github.com/Fostercare5988/ActionBars/releases/latest),
 extract it into `Interface/AddOns` and enable it in the game's AddOns list. The
-folder must contain `Interface/AddOns/FostercareBars/FostercareBars.toc`. It
-replaces ActionBarProfiles and the action bars of FostercareTweaks before 1.0.0:
+folder must contain `Interface/AddOns/ActionBars/ActionBars.toc`. It
+replaces ActionBarProfiles and the action bars of Tweaks before 1.0.0:
 turn those off.

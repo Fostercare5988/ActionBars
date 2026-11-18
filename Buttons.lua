@@ -1,11 +1,11 @@
--- FostercareBars: what every button shares, on a slot or past slot 120: the
+-- ActionBars: what every button shares, on a slot or past slot 120: the
 -- stock button's parts (FrameXML ActionButtonTemplate.xml, no scripts), a
 -- native Cooldown that counts down, and the stock colours for usable, range,
 -- key and flash (ActionButton.lua). Doc headings are ClassicAPI's docs/API.md.
 local _, FB = ...
 if not FB.Load then return end
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 FB.buttons = {}
 FB.hidden = CreateFrame("Frame") -- the parent of what the addon hides
 FB.hidden:Hide()

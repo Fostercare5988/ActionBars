@@ -1,11 +1,11 @@
--- FostercareBars: the stock bars give way to ours, and the look switches.
+-- ActionBars: the stock bars give way to ours, and the look switches.
 -- MainMenuBar stays, emptied of its buttons, under our main bar: it holds the
 -- XP and reputation bars, the bags and menu, and the pet and stance bars
 -- (FrameXML MainMenuBar.xml, PetActionBarFrame.xml:70, BonusActionBarFrame.xml:203).
 local _, FB = ...
 if not FB.Load then return end
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 local hidden = FB.hidden
 
 -- The stock action buttons stop listening, so none of their redraws runs, and

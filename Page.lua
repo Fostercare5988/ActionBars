@@ -1,9 +1,9 @@
--- The FostercareBars page in ClassicAPI's Settings window (AddOn Options, or
+-- The ActionBars page in ClassicAPI's Settings window (AddOn Options, or
 -- /fbars): the profiles, the extra bars, the look; and a Layout page per bar.
 local _, FB = ...
 if not FB.Load then return end -- no ClassicAPI: Profiles.lua said so
 
-local db = FostercareBarsDB
+local db = ActionBarsDB
 local Bool, Number = Settings.VarType.Boolean, Settings.VarType.Number
 
 local chosen = "" -- the profile the three buttons act on; "" while there is none
@@ -21,7 +21,7 @@ local function Save(name)
     return saved
 end
 
-StaticPopupDialogs.FOSTERCAREBARS_NEW = {
+StaticPopupDialogs.ACTIONBARS_NEW = {
     text = "Save the buttons on your action bars as:",
     button1 = SAVE, button2 = CANCEL,
     hasEditBox = 1, timeout = 0, whileDead = 1, hideOnEscape = 1,
@@ -32,7 +32,7 @@ StaticPopupDialogs.FOSTERCAREBARS_NEW = {
     EditBoxOnEscapePressed = function() this:GetParent():Hide() end,
 }
 
-StaticPopupDialogs.FOSTERCAREBARS_DELETE = {
+StaticPopupDialogs.ACTIONBARS_DELETE = {
     text = "Delete the profile \"%s\"?",
     button1 = YES, button2 = NO,
     timeout = 0, whileDead = 1, hideOnEscape = 1,
@@ -41,11 +41,11 @@ StaticPopupDialogs.FOSTERCAREBARS_DELETE = {
 
 SettingsRegistrar:AddRegistrant(function()
     local layout
-    category, layout = Settings.RegisterVerticalLayoutCategory("FostercareBars")
+    category, layout = Settings.RegisterVerticalLayoutCategory("ActionBars")
     chosen = FB.Names()[1] or ""
     -- Not saved: the page only points at a profile. Defaults leaves it.
     local function Get() return chosen end
-    profile = Settings.RegisterProxySetting(category, "FostercareBars_Profile", Settings.VarType.String,
+    profile = Settings.RegisterProxySetting(category, "ActionBars_Profile", Settings.VarType.String,
         "Profile", Get, Get, function(name) chosen = name end)
     local list = Settings.CreateDropdown(category, profile, function()
         local choices = Settings.CreateControlTextContainer()
@@ -60,14 +60,14 @@ SettingsRegistrar:AddRegistrant(function()
         CreateSettingsButtonInitializer("Save over it", "Save", function() Save(chosen) end,
             "Replace this profile with the buttons on your bars now.", false),
         CreateSettingsButtonInitializer("Delete", "Delete",
-            function() StaticPopup_Show("FOSTERCAREBARS_DELETE", chosen, nil, chosen) end,
+            function() StaticPopup_Show("ACTIONBARS_DELETE", chosen, nil, chosen) end,
             "Delete this profile. You are asked first.", false),
     }) do
         row:SetParentInitializer(list, Picked)
         layout:AddInitializer(row)
     end
     layout:AddInitializer(CreateSettingsButtonInitializer("New profile", "Save bars as...",
-        function() StaticPopup_Show("FOSTERCAREBARS_NEW") end,
+        function() StaticPopup_Show("ACTIONBARS_NEW") end,
         "Save the buttons on your bars under a new name.", true))
 
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Bars"))
@@ -83,7 +83,7 @@ SettingsRegistrar:AddRegistrant(function()
         setting:SetValueChangedCallback(changed)
         return Settings.CreateCheckbox(cat, setting, tooltip)
     end
-    Slider(category, "FostercareBars_extraBars", "extraBars", db, "Extra bars", FB.DEFAULTS.extraBars,
+    Slider(category, "ActionBars_extraBars", "extraBars", db, "Extra bars", FB.DEFAULTS.extraBars,
         1, FB.MAX_EXTRA, 1, "How many extra bars. The first use the action slots your class does not page to; "
         .. "the rest hold spells, items, macros and sets of their own.", FB.LayoutAll)
     layout:AddInitializer(CreateSettingsButtonInitializer("Move bars", "Move bars", FB.Move,
@@ -96,7 +96,7 @@ SettingsRegistrar:AddRegistrant(function()
         { "hideStanceBar", "Hide Stealth / Stance Bar", "No stance, form or stealth bar." },
     }) do
         local key = switch[1]
-        Checkbox(category, "FostercareBars_" .. key, key, db, switch[2], FB.DEFAULTS[key], switch[3], function()
+        Checkbox(category, "ActionBars_" .. key, key, db, switch[2], FB.DEFAULTS[key], switch[3], function()
             FB.Look()
             FB.Redraw()
         end)
@@ -108,7 +108,7 @@ SettingsRegistrar:AddRegistrant(function()
     for _, bar in ipairs(FB.bars) do
         local function Exists() return not bar.extra or bar.extra <= db.extraBars end
         local function Changed() FB.Layout(bar) end
-        local cfg, prefix = bar.cfg, "FostercareBars_" .. bar.key .. "_"
+        local cfg, prefix = bar.cfg, "ActionBars_" .. bar.key .. "_"
         local header = CreateSettingsListSectionHeaderInitializer(bar.name)
         rows:AddInitializer(header)
         local list = { header,
@@ -132,7 +132,7 @@ SettingsRegistrar:AddRegistrant(function()
     end
 end)
 
-SLASH_FOSTERCAREBARS1 = "/fbars"
-SlashCmdList.FOSTERCAREBARS = function()
+SLASH_ACTIONBARS1 = "/fbars"
+SlashCmdList.ACTIONBARS = function()
     if category then Settings.OpenToCategory(category:GetID()) end
 end

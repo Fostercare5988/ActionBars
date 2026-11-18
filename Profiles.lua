@@ -1,12 +1,12 @@
--- FostercareBars: profiles, the buttons on the action bars saved under a name
+-- ActionBars: profiles, the buttons on the action bars saved under a name
 -- and put back later. Doc headings are ClassicAPI's docs/API.md.
 if not CLASSIC_API_VERSION then
-    error("FostercareBars needs ClassicAPI.", 0)
+    error("ActionBars needs ClassicAPI.", 0)
 end
 
 local _, FB = ...
-FostercareBarsDB = FostercareBarsDB or {} -- restored first: LoadSavedVariablesFirst
-local db = FostercareBarsDB
+ActionBarsDB = ActionBarsDB or {} -- restored first: LoadSavedVariablesFirst
+local db = ActionBarsDB
 db.profiles = db.profiles or {}
 db.free = db.free or {} -- [bar number][button] = a saved action, for the bars past slot 120
 db.bars = db.bars or {} -- [bar key] = its layout
@@ -23,7 +23,7 @@ local SLOTS, MACROS = 120, 36
 local waiting -- slot -> saved item, while an item a load wanted is not in the bags
 local listener = CreateFrame("Frame")
 
-function FB.Print(text) DEFAULT_CHAT_FRAME:AddMessage("|cffff9e38FostercareBars:|r " .. text) end
+function FB.Print(text) DEFAULT_CHAT_FRAME:AddMessage("|cffff9e38ActionBars:|r " .. text) end
 
 local function Label(action)
     if action.kind == "spell" then return GetSpellInfo(action.id) or "spell " .. action.id end
@@ -209,4 +209,4 @@ function FB.Load(name)
 end
 
 -- For other addons (BrainwasherPro).
-FostercareBars = { GetProfileNames = FB.Names, LoadProfile = FB.Load }
+ActionBars = { GetProfileNames = FB.Names, LoadProfile = FB.Load }
