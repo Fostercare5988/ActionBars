@@ -66,9 +66,6 @@ local function SetSlot(b, slot)
         if b.watching then C_ActionBar.EnableActionRangeCheck(old, false) end
     end
     b.slot = slot
-    -- The stock button of the same key uses this slot too: the game's own binding
-    -- presses it (the hooks below).
-    for _, twin in ipairs(b.twins or {}) do twin.action = slot end
     bySlot[slot] = bySlot[slot] or {}
     bySlot[slot][b] = true
     if b.watching then C_ActionBar.EnableActionRangeCheck(slot, true) end
@@ -104,32 +101,25 @@ local function OnReceiveDrag()
     if LOCK_ACTIONBAR ~= "1" then PlaceAction(this.slot); State(this) end
 end
 
--- A key from Key Bindings (ActionBars.Press), as the stock ActionButtonUp.
-local function Use(b)
+-- A key (ActionBars.Press), as the stock ActionButtonUp.
+local function Use(b, onSelf)
     if MacroFrame_SaveMacro then MacroFrame_SaveMacro() end
-    UseAction(b.slot, 0)
+    UseAction(b.slot, 0, onSelf)
     State(b)
 end
 
--- The stock buttons of each stock bar (FrameXML ActionBarFrame.xml, MultiActionBars.xml).
-local STOCK = { main = "Action", bottomleft = "MultiBarBottomLeft", bottomright = "MultiBarBottomRight",
-    right = "MultiBarRight", left = "MultiBarLeft" }
-
--- Their keys: the game's own bindings press the stock buttons, which use our
--- slot (ActionButtonUp, MultiActionButtonUp: UseAction(button.action, 0)), so a
--- key acts as on the stock bars. A click of ours would pick the action up when
--- Shift is held, and Shift+6 runs the binding of 6 with Shift held (### Keys
--- with modifiers). Our button shows the press.
-local BAR = {}
-for key, stock in pairs(STOCK) do BAR[stock] = key end
-local function Pushed(stock, i, state)
-    local buttons = FB.byKey[BAR[stock]].buttons
-    if buttons then buttons[i]:SetButtonState(state) end
-end
-hooksecurefunc("ActionButtonDown", function(i) Pushed("Action", i, "PUSHED") end)
-hooksecurefunc("ActionButtonUp", function(i) Pushed("Action", i, "NORMAL") end)
-hooksecurefunc("MultiActionButtonDown", function(bar, i) Pushed(bar, i, "PUSHED") end)
-hooksecurefunc("MultiActionButtonUp", function(bar, i) Pushed(bar, i, "NORMAL") end)
+-- The stock bars' keys. The game's bindings call these four; ClassicAPI's
+-- (Util/ActionButton.lua, for ActionButtonUseKeyDown) read the hidden stock
+-- button's ActionButton_GetPagedID, which knows none of our slots: F pressed
+-- slot 10, not 70 (2026-11-18). They press our buttons instead. Not a click of
+-- ours: a Shift-click picks the action up, and Shift+6 runs 6's binding with
+-- Shift held (### Keys with modifiers).
+local BAR = { MultiBarBottomLeft = "bottomleft", MultiBarBottomRight = "bottomright",
+    MultiBarRight = "right", MultiBarLeft = "left" }
+function ActionButtonDown(i) ActionBars.Press("main", i, "down") end
+function ActionButtonUp(i, onSelf) ActionBars.Press("main", i, "up", onSelf) end
+function MultiActionButtonDown(bar, i) ActionBars.Press(BAR[bar], i, "down") end
+function MultiActionButtonUp(bar, i, onSelf) ActionBars.Press(BAR[bar], i, "up", onSelf) end
 
 function FB.SlotButton(bar, i)
     local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
@@ -139,8 +129,6 @@ function FB.SlotButton(bar, i)
     b:SetScript("OnReceiveDrag", OnReceiveDrag)
     bar.Watch = Watch
     buttons[#buttons + 1] = b
-    local stock = STOCK[bar.key]
-    if stock then b.twins = { _G[stock .. "Button" .. i], bar.key == "main" and _G["BonusActionButton" .. i] or nil } end
     SetSlot(b, bar.key == "main" and MainSlot(i) or bar.first + i - 1)
     return b
 end

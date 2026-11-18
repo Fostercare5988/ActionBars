@@ -163,8 +163,8 @@ function FB.Move()
     FB.Print(moving and "Drag the bars. Press Move bars again to lock them." or "Bars locked.")
 end
 
--- Keys: those of the stock buttons press the stock buttons, on our slots
--- (Slots.lua); the other bars' keys are in Key Bindings (Bindings.xml).
+-- Keys: those of the stock buttons press ours (Slots.lua); the other bars'
+-- keys are in Key Bindings (Bindings.xml).
 local function Command(bar, i)
     return bar.binding and bar.binding .. i or "ACTIONBARS_" .. string.upper(bar.key) .. "_" .. i
 end
@@ -183,15 +183,23 @@ for _, bar in ipairs(FB.bars) do
     end
 end
 
--- The bindings in Bindings.xml: down shows the button pushed, up uses it. Not a
--- click: a key bound in Lua sees Shift held (### Modifier keys during a binding),
--- and a Shift-click picks the action up.
-function ActionBars.Press(key, i, state)
+-- Every bar's keys (Bindings.xml, Slots.lua), as ClassicAPI's stock handlers:
+-- the press shows the button pushed, the release normal, and the action is used
+-- on the press with the player's ActionButtonUseKeyDown, else on the release
+-- (### ActionButtonUseKeyDown). Not a click: a key bound in Lua sees Shift held
+-- (### Modifier keys during a binding), and a Shift-click picks the action up.
+function ActionBars.Press(key, i, state, onSelf)
     local bar = FB.byKey[key]
     local b = bar and bar.buttons and bar.buttons[i]
     if not b or not bar.holder:IsShown() then return end
-    if state == "down" then b:SetButtonState("PUSHED")
-    else b:SetButtonState("NORMAL"); b:Use() end
+    local onPress = GetCVar("ActionButtonUseKeyDown") == "1"
+    if state == "down" then
+        b:SetButtonState("PUSHED")
+        if onPress then b:Use() end
+    elseif b:GetButtonState() == "PUSHED" then
+        b:SetButtonState("NORMAL")
+        if not onPress then b:Use(onSelf) end
+    end
 end
 
 local events = CreateFrame("Frame")
