@@ -70,6 +70,11 @@ function FB.NewButton(name, parent)
     b.cooldown = CreateFrame("Cooldown", nil, b)
     b.cooldown:SetAllPoints(b)
     b.cooldown:SetCountdownFormatter(countdown)
+    b.loss = CreateFrame("Cooldown", nil, b) -- the loss-of-control swipe, over the cooldown
+    b.loss:SetAllPoints(b)
+    b.loss:SetSwipeColor(1, 0, 0, 0.7)
+    b.loss:SetDrawBling(false)
+    b.loss:SetHideCountdownNumbers(true)
     b.edge = CreateFrame("Frame", nil, b)
     b.edge:SetPoint("TOPLEFT", b, "TOPLEFT", -3, 3)
     b.edge:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", 3, -3)
@@ -94,7 +99,7 @@ end
 function FB.Icon(b, texture)
     b.has = texture ~= nil
     b.icon:SetTexture(texture)
-    if texture then b.icon:Show() else b.icon:Hide(); FB.Cooldown(b, 0, 0, 0) end
+    if texture then b.icon:Show() else b.icon:Hide(); FB.Cooldown(b, 0, 0, 0); FB.Loss(b) end
     b:SetNormalTexture(texture and "Interface\\Buttons\\UI-Quickslot2" or "Interface\\Buttons\\UI-Quickslot")
     b.normal:SetAlpha(db.floating and 0 or 1)
     FB.Grid(b)
@@ -137,6 +142,39 @@ function FB.Cooldown(b, start, duration, enable)
         b.cooldown:Clear()
     end
 end
+
+-- Loss of control: while a stun, fear, silence or school lockout blocks the
+-- button's spell, a red swipe runs for the effect's time (### C_Spell.GetSpellLossOfControlCooldown:
+-- start, duration, no table). When the effect outlasts the button's own cooldown it
+-- replaces that sweep (shouldReplaceNormalCooldown). Written only when it changes.
+-- UNVERIFIED: a cooldown that starts or ends while an effect runs is not redrawn
+-- until the next LOSS_OF_CONTROL_UPDATE.
+local lossActive = false
+function FB.Loss(b, spell)
+    local start, duration = 0, 0
+    if lossActive and spell and spell > 0 then
+        start, duration = C_Spell.GetSpellLossOfControlCooldown(spell)
+        if not duration or duration <= 0 then start, duration = 0, 0 end
+    end
+    if b.lossStart == start and b.lossDuration == duration then return end
+    b.lossStart, b.lossDuration = start, duration
+    if duration > 0 then
+        b.loss:SetCooldown(start, duration)
+        b.cooldown:SetAlpha(b.cdStart and b.cdStart + b.cdDuration > start + duration and 1 or 0)
+    else
+        b.loss:Clear()
+        b.cooldown:SetAlpha(1)
+    end
+end
+
+local watcher = CreateFrame("Frame")
+watcher:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
+watcher:SetScript("OnEvent", function()
+    lossActive = C_LossOfControl.GetActiveLossOfControlDataCount() > 0
+    for _, b in ipairs(FB.buttons) do
+        if b.has and (lossActive or (b.lossDuration or 0) > 0) then b:Loss() end
+    end
+end)
 
 -- Auto-attack and auto-shot: one timer for every flashing button, only while one flashes.
 local flashing, ticker = {}, nil

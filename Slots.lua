@@ -44,13 +44,15 @@ local function Border(b) FB.Equipped(b, IsEquippedAction(b.slot)) end
 
 local function Tooltip(b) return GameTooltip:SetAction(b.slot) end
 
+local function Loss(b) FB.Loss(b, C_ActionBar.GetSpell(b.slot)) end
+
 local function Draw(b)
     local slot = b.slot
     FB.Icon(b, HasAction(slot) and GetActionTexture(slot) or nil)
     b.label:SetText(GetActionText(slot))
     Border(b)
     FB.Usable(b, IsUsableAction(slot))
-    if b.has then FB.Cooldown(b, GetActionCooldown(slot)) end
+    if b.has then FB.Cooldown(b, GetActionCooldown(slot)); Loss(b) end
     Count(b)
     State(b)
     if GameTooltip:IsOwned(b) then FB.Hover(b) end
@@ -123,7 +125,7 @@ function MultiActionButtonUp(bar, i, onSelf) ActionBars.Press(BAR[bar], i, "up",
 
 function FB.SlotButton(bar, i)
     local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
-    b.bar, b.Draw, b.Tooltip, b.Use = bar, Draw, Tooltip, Use
+    b.bar, b.Draw, b.Tooltip, b.Use, b.Loss = bar, Draw, Tooltip, Use, Loss
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)
     b:SetScript("OnReceiveDrag", OnReceiveDrag)

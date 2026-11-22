@@ -13,7 +13,8 @@ on them.
   bars of their own past the 120 action slots. They all hold spells, items,
   macros and equipment sets; drag and drop between any two buttons; each gets its
   keys in Key Bindings.
-- **Each button:** cooldown countdown, range and mana colours, reagent counts,
+- **Each button:** cooldown countdown, a red loss-of-control swipe while a stun,
+  fear, silence or school lockout blocks its spell, range and mana colours, reagent counts,
   equipped border, auto-attack flash, macro names, key text, tooltips.
 - **Keys** work as on the stock bars: holding Shift or something on the cursor
   never moves a button.

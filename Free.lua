@@ -53,6 +53,8 @@ local function Cooldown(b)
     FB.Cooldown(b, 0, 0, 0)
 end
 
+local function Loss(b) FB.Loss(b, b.spell) end
+
 local function Count(b)
     local text = ""
     if b.item and IsConsumableItem(b.item) then
@@ -162,6 +164,7 @@ local function Draw(b)
     Equipped(b)
     Usable(b)
     Cooldown(b)
+    Loss(b)
     Count(b)
     Follow(b)
 end
@@ -282,7 +285,7 @@ end)
 
 function FB.FreeButton(bar, i)
     local b = FB.NewButton("ActionBars_" .. bar.key .. "_" .. i, bar.holder)
-    b.bar, b.index, b.Draw, b.Tooltip, b.Use = bar, i, Draw, Tooltip, Use
+    b.bar, b.index, b.Draw, b.Tooltip, b.Use, b.Loss = bar, i, Draw, Tooltip, Use, Loss
     b:SetScript("OnClick", OnClick)
     b:SetScript("OnDragStart", OnDragStart)
     b:SetScript("OnReceiveDrag", OnReceiveDrag)
