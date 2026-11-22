@@ -2,7 +2,7 @@
 ## Title: |cffff9e38ActionBars|r |cffffd6a8[Fostercare5988]|r
 ## Notes: Your action bars, up to ten extra bars, and profiles of their buttons
 ## Author: Fostercare5988
-## Version: 1.0.3
+## Version: 1.1.0
 ## SavedVariablesPerCharacter: ActionBarsDB
 ## LoadSavedVariablesFirst: 1
 Profiles.lua
