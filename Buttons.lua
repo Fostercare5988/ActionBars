@@ -131,6 +131,14 @@ function FB.SetKey(b, key)
     FB.Range(b, b.inRange)
 end
 
+local function Replace(b) -- the loss swipe stands in for the cooldown sweep when it ends later
+    local hide = b.lossDuration > 0 and not (b.cdStart and b.cdStart + b.cdDuration > b.lossStart + b.lossDuration)
+    if (b.lossHidden or false) ~= hide then
+        b.lossHidden = hide
+        b.cooldown:SetAlpha(hide and 0 or 1)
+    end
+end
+
 function FB.Cooldown(b, start, duration, enable)
     if start > 0 and duration > 0 and enable > 0 then
         if b.cdStart ~= start or b.cdDuration ~= duration then
@@ -141,14 +149,14 @@ function FB.Cooldown(b, start, duration, enable)
         b.cdStart, b.cdDuration = nil, nil
         b.cooldown:Clear()
     end
+    if b.lossDuration and b.lossDuration > 0 then Replace(b) end -- a cooldown changed during an effect
 end
 
 -- Loss of control: while a stun, fear, silence or school lockout blocks the
 -- button's spell, a red swipe runs for the effect's time (### C_Spell.GetSpellLossOfControlCooldown:
 -- start, duration, no table). When the effect outlasts the button's own cooldown it
 -- replaces that sweep (shouldReplaceNormalCooldown). Written only when it changes.
--- UNVERIFIED: a cooldown that starts or ends while an effect runs is not redrawn
--- until the next LOSS_OF_CONTROL_UPDATE.
+-- UNVERIFIED: the swipe's colour, alpha and layering over the cooldown (not seen in game).
 local lossActive = false
 function FB.Loss(b, spell)
     local start, duration = 0, 0
@@ -160,10 +168,10 @@ function FB.Loss(b, spell)
     b.lossStart, b.lossDuration = start, duration
     if duration > 0 then
         b.loss:SetCooldown(start, duration)
-        b.cooldown:SetAlpha(b.cdStart and b.cdStart + b.cdDuration > start + duration and 1 or 0)
+        Replace(b)
     else
         b.loss:Clear()
-        b.cooldown:SetAlpha(1)
+        Replace(b)
     end
 end
 
