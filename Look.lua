@@ -67,7 +67,7 @@ end
 -- Countdown numbers on every stock sweep: the pet and stance buttons, bags, the
 -- spellbook, the character sheet, and other addons' (Bagnon, GearRack). They are
 -- 1.12 Models without numbers: each gets a native Cooldown that draws only the
--- numbers, by the player's countdownForCooldowns (the Cooldown section). FrameXML
+-- numbers (the Cooldown section). FrameXML
 -- Cooldown.lua: CooldownFrame_SetTimer shows the Model for a running cooldown
 -- and hides it otherwise; the numbers hide with it.
 local function Numbers(model)
